@@ -23,34 +23,85 @@ resource "aws_security_group_rule" "allow_directorsg_ingress_default" {
     security_group_id = "${aws_security_group.directorSG.id}"
 }
 
+resource "aws_security_group_rule" "allow_directorsg_ingress_ssh_concourse" {
+    type = "ingress"
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["54.81.136.18/32"]
+    security_group_id = "${aws_security_group.directorSG.id}"
+}
+
+resource "aws_security_group_rule" "allow_directorsg_ingress_ssh_junk_box" {
+    type = "ingress"
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["54.243.19.86/32"]
+    security_group_id = "${aws_security_group.directorSG.id}"
+}
+
+resource "aws_security_group_rule" "allow_directorsg_ingress_https_concourse" {
+    type = "ingress"
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = ["54.81.136.18/32"]
+    security_group_id = "${aws_security_group.directorSG.id}"
+}
+
+resource "aws_security_group_rule" "allow_directorsg_ingress_https_junk_box" {
+    type = "ingress"
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = ["54.243.19.86/32"]
+    security_group_id = "${aws_security_group.directorSG.id}"
+}
+
+
 resource "aws_security_group_rule" "allow_directorsg_egress_default" {
     type = "egress"
     from_port = 0
     to_port = 0
     protocol = -1
+    cidr_blocks = ["${var.vpc_cidr}"]
+    security_group_id = "${aws_security_group.directorSG.id}"
+}
+
+resource "aws_security_group_rule" "allow_directorsg_egress_ntp" {
+    type = "egress"
+    from_port = 123
+    to_port = 123
+    protocol = "udp"
     cidr_blocks = ["0.0.0.0/0"]
     security_group_id = "${aws_security_group.directorSG.id}"
 }
 
-resource "aws_security_group_rule" "allow_ssh" {
-    count           = "${var.opsman_allow_ssh}"
-    type            = "ingress"
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    cidr_blocks     = "${var.opsman_allow_ssh_cidr_ranges}"
-
+resource "aws_security_group_rule" "allow_directorsg_egress_http" {
+    type = "egress"
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
     security_group_id = "${aws_security_group.directorSG.id}"
 }
 
-resource "aws_security_group_rule" "allow_https" {
-    count           = "${var.opsman_allow_https}" 
-    type            = "ingress"
-    from_port       = 443 
-    to_port         = 443
-    protocol        = "tcp"
-    cidr_blocks     = "${var.opsman_allow_https_cidr_ranges}"
+resource "aws_security_group_rule" "allow_directorsg_egress_https" {
+    type = "egress"
+    from_port = 443
+    to_port = 443 
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    security_group_id = "${aws_security_group.directorSG.id}"
+}
 
+resource "aws_security_group_rule" "allow_directorsg_egress_replace_with_elb_ips" {
+    type = "egress"
+    from_port = 4443
+    to_port = 4443 
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
     security_group_id = "${aws_security_group.directorSG.id}"
 }
 
@@ -69,11 +120,47 @@ resource "aws_security_group" "rdsSG" {
         to_port = 3306
         protocol = "tcp"
         cidr_blocks = ["${var.vpc_cidr}"]
+    }    
+  ingress {
+        from_port = 5432
+        to_port = 5432
+        protocol = "tcp"
+        cidr_blocks = ["${var.vpc_cidr}"]
     }
     egress {
         from_port = 0
         to_port = 0
         protocol = -1
+        cidr_blocks = ["${var.vpc_cidr}"]
+    }
+    egress {
+        from_port = 1433
+        to_port = 1433
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+    egress {
+        from_port = 1521
+        to_port = 1521
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+    egress {
+        from_port = 5432
+        to_port = 5432
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+    egress {
+        from_port = 3306
+        to_port = 3306
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+    egress {
+        from_port = 443
+        to_port = 443
+        protocol = "tcp"
         cidr_blocks = ["0.0.0.0/0"]
     }
 
@@ -99,6 +186,24 @@ resource "aws_security_group" "pcfSG" {
         from_port = 0
         to_port = 0
         protocol = -1
+        cidr_blocks = ["${var.vpc_cidr}"]
+    }
+      egress {
+        from_port = 443
+        to_port = 443
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+      egress {
+        from_port = 4443
+        to_port = 4443
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+      egress {
+        from_port = 80
+        to_port = 80
+        protocol = "tcp"
         cidr_blocks = ["0.0.0.0/0"]
     }
 }
