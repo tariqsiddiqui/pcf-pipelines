@@ -49,13 +49,19 @@ resource "aws_security_group" "PcfSshElbSg" {
         from_port = 2222
         to_port = 2222
         protocol = "TCP"
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks = ["50.255.182.73/32"]
+    }
+    ingress {
+        from_port = 2222
+        to_port = 2222
+        protocol = "TCP"
+        cidr_blocks = ["50.207.141.34/32"]
     }
     egress {
         from_port = 0
         to_port = 0
         protocol = -1
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks = ["${var.vpc_cidr}"]
     }
 }
 resource "aws_security_group" "PcfTcpElbSg" {
@@ -69,12 +75,18 @@ resource "aws_security_group" "PcfTcpElbSg" {
         from_port = 1024
         to_port = 1123
         protocol = "TCP"
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks = ["50.255.182.73/32"]
+    }
+    ingress {
+        from_port = 1024
+        to_port = 1123
+        protocol = "TCP"
+        cidr_blocks = ["50.207.141.34/32"]
     }
     egress {
         from_port = 0
         to_port = 0
         protocol = -1
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks = ["${var.vpc_cidr}"]
     }
 }
